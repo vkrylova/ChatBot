@@ -1,15 +1,30 @@
+import os
 import time
 
 from functions import *
 
 # Create chatbot
 home_bot = create_bot("Jordan")
+db_path = "db.sqlite3"
+
+is_trained = os.path.exists(db_path)
+
+if not is_trained:
+    print("First run detected - training bot...")
+    train_all_data(home_bot)
+
+    custom_train(home_bot, [
+        "Who is the owner of this house?",
+        "Mark Nicholas is the owner of this house."
+    ])
+else:
+    print("Database found - skipping training.")
 
 # Train the bot with general data
 train_all_data(home_bot)
 
 identity = input("State your identity please: ")
-# rules for responding to different identities
+# Rules for responding to different identities
 if identity == "Mark":
     print("Welcome, Mark. Happy to have you at home.")
     time.sleep(3)  # Add a delay to let the welcome message display
@@ -32,30 +47,16 @@ custom_train(home_bot, house_owner)
 
 print("------ Training custom data ------")
 if identity == 'Mark':
-    city_born = [
-        "Where was I born?",
-        "Mark, you were born in Seattle."
-    ]
+    personal_data = {
+        "Where was I born?": "Mark, you were born in Seattle.",
+        "What is my favourite book?": "Your favourite book is The Great Gatsby.",
+        "What is my favourite movie?": "You have watched Interstellar more times than I can count.",
+        "What is my favourite sport?": "You have always loved baseball.",
+    }
 
-    fav_book = [
-        "What is my favourite book?",
-        "That is easy. Your favourite book is The Great Gatsby."
-    ]
-
-    fav_movie = [
-        "What is my favourite movie?",
-        "You have watched Interstellar more times than I can count."
-    ]
-
-    fav_sports = [
-        "What is my favourite sport?",
-        "You have always loved baseball."
-    ]
-    # train chatbot with your custom data
-    custom_train(home_bot, city_born)
-    custom_train(home_bot, fav_book)
-    custom_train(home_bot, fav_movie)
-    custom_train(home_bot, fav_sports)
+    # Train chatbot with your custom data
+    for q, a in personal_data.items():
+        custom_train(home_bot, [q, a])
 
 # Start the chatbot
 start_chatbot(home_bot)
